@@ -1,0 +1,10 @@
+VertexLitGeneric
+{
+	$basetexture "models/workshop/workbench/workbench"
+	$bumpmap "models/workshop/workbench/workbench_normal"
+	$surfaceprop Metal
+
+	$envmap "env_cubemap"
+	$normalmapalphaenvmapmask 1
+	$envmaptint "[0.15 0.15 0.15]"
+}
