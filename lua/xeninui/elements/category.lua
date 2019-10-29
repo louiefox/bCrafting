@@ -1,0 +1,269 @@
+--[[
+	Created by Patrick Ratzow (sleeppyy).
+
+	Credits goes to Metamist for his previously closed source library Wyvern,
+		CupCakeR for various improvements, the animated texture VGUI panel, and misc.
+]]
+ 
+XeninUI:CreateFont("XeninUI.Category.Title", 20)
+
+XENINUI_LAYOUT_GRID = 1
+XENINUI_LAYOUT_ROW = 2
+
+local PANEL = {}
+
+AccessorFunc(PANEL, "m_topHeight", "TopHeight")
+AccessorFunc(PANEL, "m_expanded", "Expanded")
+AccessorFunc(PANEL, "m_topColor", "TopColor")
+AccessorFunc(PANEL, "m_topColorHover", "TopColorHover")
+AccessorFunc(PANEL, "m_topColorActive", "TopColorActive")
+AccessorFunc(PANEL, "m_topTextColor", "TopTextColor")
+AccessorFunc(PANEL, "m_topTextColorHover", "TopTextColorHover")
+AccessorFunc(PANEL, "m_topTextColorActive", "TopTextColorActive")
+AccessorFunc(PANEL, "m_rounded", "Rounded")
+AccessorFunc(PANEL, "m_icon", "Icon")
+AccessorFunc(PANEL, "m_iconSize", "IconSize")
+AccessorFunc(PANEL, "m_iconOffset", "IconOffset")
+AccessorFunc(PANEL, "m_xOffset", "XOffset")
+AccessorFunc(PANEL, "m_name", "Name")
+AccessorFunc(PANEL, "m_font", "Font")
+AccessorFunc(PANEL, "m_background", "BackgroundColor")
+AccessorFunc(PANEL, "m_layoutType", "LayoutType")
+AccessorFunc(PANEL, "m_columns", "Columns")
+AccessorFunc(PANEL, "m_layoutX", "LayoutX")
+AccessorFunc(PANEL, "m_layoutY", "LayoutY")
+AccessorFunc(PANEL, "m_layoutPanel", "LayoutPanel")
+AccessorFunc(PANEL, "m_columnHeight", "ColumnHeight")
+AccessorFunc(PANEL, "m_bAnimateChanges", "AnimateChanges", FORCE_BOOL)
+AccessorFunc(PANEL, "m_fAnimTime", "AnimTime")
+AccessorFunc(PANEL, "m_InstantExpandWidth", "InstantExpandWidth", FORCE_NUMBER)
+
+function PANEL:Init()
+  self:SetExpanded(false)
+  self:SetTopHeight(48)
+  self:SetTopColor(XeninUI.Theme.Primary)
+  self:SetTopColorHover(Color(54, 54, 54))
+  self:SetTopColorActive(Color(60, 60, 60))
+  self:SetTopTextColor(Color(180, 180, 180))
+  self:SetTopTextColorHover(Color(210, 210, 210))
+  self:SetTopTextColorActive(color_white)
+  self:SetRounded(6)
+  self:SetXOffset(16)
+  self:SetName("UNNAMED CATEGORY")
+  self:SetFont("XeninUI.Category.Title")
+  self:SetIcon(nil)
+  self:SetIconSize(32)
+  self:SetIconOffset(8)
+  self:SetBackgroundColor(XeninUI.Theme.Navbar)
+  self:SetLayoutType(XENINUI_LAYOUT_ROW)
+  self:SetColumns(1)
+  self:SetColumnHeight(48)
+  self:SetLayoutX(8)
+  self:SetLayoutY(8)
+  self:SetLayoutPanel("DButton")
+  self:SetInstantExpandWidth(0)
+
+  self.Top = self:Add("DButton")
+  self.Top:Dock(TOP)
+  self.Top:SetText("")
+  self.Top.textColor = self:GetTopTextColor()
+  self.Top.background = self:GetTopColor()
+  self.Top.OnCursorEntered = function(pnl)
+    if (self:GetExpanded()) then return end
+
+    pnl:LerpColor("textColor", self:GetTopTextColorHover())
+    pnl:LerpColor("background", self:GetTopColorHover())
+  end
+  self.Top.OnCursorExited = function(pnl)
+    if (self:GetExpanded()) then return end
+
+    pnl:LerpColor("textColor", self:GetTopTextColor())
+    pnl:LerpColor("background", self:GetTopColor())
+  end
+  self.Top.Paint = function(pnl, w, h)
+    local roundedBottom = self:GetTall() <= self:GetTopHeight()
+
+    draw.RoundedBoxEx(self:GetRounded(), 0, 0, w, h, pnl.background, true, true, roundedBottom, roundedBottom)
+
+    local x = self:GetXOffset()
+    if (self:GetIcon()) then
+      local iconSize = self:GetIconSize()
+      surface.SetMaterial(self:GetIcon())
+      surface.SetDrawColor(pnl.textColor)
+      surface.DrawTexturedRect(self:GetIconOffset(), self:GetIconOffset(), iconSize, iconSize)
+      
+      x = h
+    end
+
+    draw.SimpleText(self:GetName(), "XeninUI.Category.Title", x, h / 2, pnl.textColor, TEXT_ALIGN_LEFT, TEXT_ALIGN_CENTER)
+  end
+  self.Top.DoClick = function(pnl)
+    self:Expand(!self:GetExpanded())
+  end
+
+  self:SetAnimTime(0.3)
+  self:SetAnimateChanges(false)
+  self:SetTall(self.Top:GetTall())
+  self.animSlide = Derma_Anim("Anim", self, self.AnimSlide)
+end
+
+function PANEL:AnimSlide(anim, delta, data)
+    self:InvalidateLayout()
+    self:InvalidateParent()
+
+    if (anim.Started) then
+      if (IsValid(self.Layout) and self:GetExpanded()) then
+        self.Layout:SetVisible(false)
+      end
+
+      if (self:GetExpanded()) then
+        self:SizeToChildren(false, true)
+      else
+        self:SetTall(self.Top:GetTall())
+      end
+
+      data.to = self:GetTall()
+    end
+
+    self:SetTall(XeninUI:Ease(delta, data.from, data.to - data.from, 1))
+
+    if (anim.Finished) then
+      if (IsValid(self.Layout) and !self:GetExpanded()) then
+        self.Layout:SetVisible(false)
+      end
+
+      return
+    end
+end
+
+function PANEL:SetLayoutType(type)
+  if (IsValid(self.Layout)) then
+    self.Layout:Remove()
+  end
+
+  local panel = type == XENINUI_LAYOUT_GRID and "DIconLayout" or "DListLayout"
+  self.Layout = self:Add(panel)
+  self.Layout:Dock(FILL)
+  self.Layout:DockPadding(8, 8, 8, 8)
+
+  if (panel == "DIconLayout") then
+    self.Layout:SetBorder(8)
+    self.Layout:SetSpaceY(self:GetLayoutX())
+    self.Layout:SetSpaceX(self:GetLayoutY())
+    self.Layout.PerformLayout = function(pnl, w, h)
+      local children = pnl:GetChildren()
+      local count = self:GetColumns()
+      local amount = (math.max(1, math.floor(#children / count))) * 276 -- Idfk where the 276 is from, it was in the code I took from an earlier project
+      local width = w / math.min(count, #children)
+
+      local x = 0
+      local y = 0
+
+      local spacingX = pnl:GetSpaceX()
+      local spacingY = pnl:GetSpaceY()
+      local border = pnl:GetBorder()
+      local innerWidth = w - border * 2 - spacingX * (count - 1)
+
+      for i, child in ipairs(children) do
+        if (!IsValid(child)) then continue end
+      
+        child:SetPos(border + x * innerWidth / count + spacingX * x, border + y * child:GetTall() + spacingY * y)
+        child:SetSize(innerWidth / count, innerWidth / count)
+
+        x = x + 1
+        if (x >= count) then
+          x = 0
+          y = y + 1
+        end
+      end
+
+      pnl:SizeToChildren(false, true)
+    end
+  else
+    self.Layout:SetTall(self:GetColumnHeight())
+  end
+
+  self.m_layoutType = type
+end
+
+function PANEL:Expand(state)
+  self.Top:LerpColor("textColor", state and self:GetTopTextColorActive() or self:GetTopTextColorHover())
+  self.Top:LerpColor("background", state and self:GetTopColorActive() or self:GetTopColorHover())
+
+  local height = state and 48 + self.Layout:GetTall() or 48
+  self:SetExpanded(state)
+
+  self.Top.NextHeight = state and self.Top:GetTall() or self:GetTall()
+  self.Top:Lerp("NextHeight", height)
+  self.invalidateLayout = true
+
+  self:OnToggle(self:GetExpanded())
+end
+
+function PANEL:OnToggle(state)
+  -- Overwrite
+end
+
+function PANEL:FeedData(tbl, index, expand)
+  for i, v in pairs(tbl) do
+    local panel = self.Layout:Add(self:GetLayoutPanel())
+
+    if (self:GetLayoutType() == XENINUI_LAYOUT_ROW) then
+      panel:Dock(TOP)
+      panel:DockMargin(0, 0, 0, self:GetLayoutY())
+      panel:SetTall(self:GetColumnHeight())
+    end
+
+    if (panel.HandleData) then
+      panel:HandleData(v, i)
+    end
+  end
+
+  if (expand) then
+    self.Top.textColor = self:GetTopTextColorActive()
+    self.Top.background = self:GetTopColorActive()
+
+    local height = 48
+    if (self:GetLayoutType() == XENINUI_LAYOUT_GRID) then
+      local columns = self:GetColumns()
+      local spacingX = self.Layout:GetSpaceX()
+      local spacingY = self.Layout:GetSpaceY()
+      local border = self.Layout:GetBorder()
+      local innerWidth = (self:GetInstantExpandWidth() > 0 and self:GetInstantExpandWidth() or self:GetWide()) - border * 2 - spacingX * (columns - 1)
+      local columnHeight = innerWidth / columns
+
+      height = height + math.ceil(#tbl / columns) * (self:GetLayoutY() + columnHeight) + spacingY
+    elseif (self:GetLayoutType() == XENINUI_LAYOUT_ROW) then
+      local columns = #tbl
+      local y = self:GetLayoutY()
+      local columnHeight = self:GetColumnHeight()
+
+      height = height + y + (columns * columnHeight) + (y * (columns - 1)) + y
+    end
+
+    self:SetExpanded(true)
+    self.Top.NextHeight = height
+    self:InvalidateLayout()
+
+    self:OnToggle(true)
+  end
+
+  self:InvalidateLayout()
+end
+
+function PANEL:Paint(w, h)
+  draw.RoundedBoxEx(self:GetRounded(), 0, self.Top:GetTall(), w, h - self.Top:GetTall(), self:GetBackgroundColor(), false, false, true, true)
+end
+
+function PANEL:Think()
+  if (self.invalidateLayout) then
+    self:InvalidateLayout()
+  end
+end
+
+function PANEL:PerformLayout(w, h)
+  self.Top:SetTall(self:GetTopHeight())
+  self:SetTall(self.Top.NextHeight or self.Top:GetTall())
+end
+
+vgui.Register("XeninUI.Category", PANEL)
