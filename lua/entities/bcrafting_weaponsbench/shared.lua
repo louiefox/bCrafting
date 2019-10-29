@@ -2,7 +2,7 @@
 ENT.Type = "anim"
 ENT.Base = "base_gmodentity"
  
-ENT.PrintName		= BCRAFTING.CONFIG.General.Name
+ENT.PrintName		= BCRAFTING.CONFIG.Weapons.Name
 ENT.Category		= "bCrafting"
 ENT.Author			= "Brick Wall"
 ENT.AutomaticFrameAdvance = true

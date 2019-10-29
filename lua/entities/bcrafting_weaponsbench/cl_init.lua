@@ -23,10 +23,7 @@ function ENT:Draw()
 	end
 end
 
-XeninUI:CreateFont("XeninUI.Crafting.Button", 24)
-XeninUI:CreateFont("XeninUI.Crafting.Description", 17)
-XeninUI:CreateFont("XeninUI.Crafting.DescriptionS", 14)
-net.Receive( "bCrafting_Net_UseBench", function( len, ply )
+net.Receive( "bCrafting_Net_WUseBench", function( len, ply )
 	local Bench = net.ReadEntity()
 	local Resources = net.ReadTable() or {}
 
@@ -35,7 +32,7 @@ net.Receive( "bCrafting_Net_UseBench", function( len, ply )
 		bCrafting_Menu:SetSize( ScrW()*0.4, ScrH()*0.5 )
 		bCrafting_Menu:Center()
 		bCrafting_Menu:MakePopup()
-		bCrafting_Menu:SetTitle( BCRAFTING.CONFIG.General.Name )
+		bCrafting_Menu:SetTitle( BCRAFTING.CONFIG.Weapons.Name )
 		bCrafting_Menu:SetAlpha( 0 )
 		bCrafting_Menu:AlphaTo( 255, 0.1, 0 )
 		bCrafting_Menu.closeBtn.DoClick = function()
@@ -70,7 +67,7 @@ net.Receive( "bCrafting_Net_UseBench", function( len, ply )
 			end
 		end
 
-		for k, v in pairs( BCRAFTING.CONFIG.General.Items ) do
+		for k, v in pairs( BCRAFTING.CONFIG.Weapons.Items ) do
 			local CraftEntry = vgui.Create( "DPanel", ScrollPanel )
 			CraftEntry:Dock( TOP )
 			CraftEntry:DockMargin( 0, 0, 15, 15 )
@@ -124,7 +121,7 @@ net.Receive( "bCrafting_Net_UseBench", function( len, ply )
 				pnl:LerpColor("BackgroundCol", XeninUI.Theme.Navbar )
 			end
 			CraftEntryButton.DoClick = function(pnl)
-				net.Start( "bCrafting_Net_CraftItem" )
+				net.Start( "bCrafting_Net_WCraftItem" )
 					net.WriteEntity( Bench )
 					net.WriteInt( k, 32 )
 				net.SendToServer()

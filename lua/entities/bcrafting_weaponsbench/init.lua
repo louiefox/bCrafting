@@ -3,7 +3,7 @@ AddCSLuaFile("shared.lua")
 include('shared.lua')
 
 function ENT:Initialize()
-	self:SetModel( "models/workshop/workbench/workbench.mdl" )
+	self:SetModel( "models/workshop/workbench/workbench_weapons.mdl" )
 	
 	self:PhysicsInit( SOLID_VPHYSICS )
 	self:SetMoveType( MOVETYPE_VPHYSICS )
@@ -19,14 +19,14 @@ function ENT:Initialize()
 	self.Resources = {}
 end
 
-util.AddNetworkString( "bCrafting_Net_UseBench" )
+util.AddNetworkString( "bCrafting_Net_WUseBench" )
 function ENT:Use( ply )
 	if( IsValid( ply ) and ply:GetEyeTrace().Entity == self ) then
 		if( self:GetUseCooldown() > CurTime() ) then return end
 
 		self:SetUseCooldown( CurTime()+1 )
 
-		net.Start( "bCrafting_Net_UseBench" )
+		net.Start( "bCrafting_Net_WUseBench" )
 			net.WriteEntity( self )
 			net.WriteTable( self.Resources )
 		net.Send( ply )
@@ -47,15 +47,15 @@ function ENT:StartTouch( ent )
 	end
 end
 
-util.AddNetworkString( "bCrafting_Net_CraftItem" )
-net.Receive( "bCrafting_Net_CraftItem", function( len, ply )
+util.AddNetworkString( "bCrafting_Net_WCraftItem" )
+net.Receive( "bCrafting_Net_WCraftItem", function( len, ply )
 	local Bench = net.ReadEntity()
 	local Key = net.ReadInt( 32 )
 	
 	if( not Bench or not Key ) then return end
-	if( not IsValid( Bench ) or not BCRAFTING.CONFIG.General.Items[Key] ) then return end
+	if( not IsValid( Bench ) or not BCRAFTING.CONFIG.Weapons.Items[Key] ) then return end
 	
-	local Item = BCRAFTING.CONFIG.General.Items[Key]
+	local Item = BCRAFTING.CONFIG.Weapons.Items[Key]
 	local HasItems = true
 	for k, v in pairs( Item.Resource ) do
 		if( not Bench.Resources[k] or Bench.Resources[k] < v ) then
@@ -69,8 +69,8 @@ net.Receive( "bCrafting_Net_CraftItem", function( len, ply )
 			Bench.Resources[k] = math.max( (Bench.Resources[k] or 0)-v, 0 )
 		end
 
-		if( Item.onCraft ) then
-			Item.onCraft( ply )
+		if( Item.WeaponClass ) then
+			ply:Give( Item.WeaponClass )
 		end
 
 		BCRAFTING.Notify( ply, "You have crafted the item '" .. Item.Name .. "'." )
