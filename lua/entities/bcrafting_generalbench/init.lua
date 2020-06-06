@@ -73,6 +73,10 @@ net.Receive( "bCrafting_Net_CraftItem", function( len, ply )
 			Item.onCraft( ply )
 		end
 
+		if( Item.WeaponClass ) then
+			ply:Give( Item.WeaponClass )
+		end
+
 		BCRAFTING.Notify( ply, "You have crafted the item '" .. Item.Name .. "'." )
 	else
 		BCRAFTING.Notify( ply, "You don't have enough resources to craft this item!" )
