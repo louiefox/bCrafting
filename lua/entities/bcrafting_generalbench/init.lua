@@ -34,7 +34,7 @@ function ENT:Use( ply )
 end
 
 function ENT:OnTakeDamage( dmgInfo )
-	self:SetHealth( math.Clamp( self:Health()-dmgInfo:GetDamage(), 0, self.BenchHealth ) )
+	self:SetHealth( math.Clamp( self:Health()-dmgInfo:GetDamage(), 1, self.BenchHealth ) )
 	if( self:Health() <= 0 ) then
 		self:Remove()
 	end
