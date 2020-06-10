@@ -63,7 +63,7 @@ net.Receive( "bCrafting_Net_WUseBench", function( len, ply )
 			if( ResourceString != "" ) then
 				draw.SimpleText( ResourceString, "XeninUI.Crafting.Description", 15, h/2, Color(255,255,255,255), 0, TEXT_ALIGN_CENTER )
 			else
-				draw.SimpleText( "No resources, collect some from around the map!", "XeninUI.Crafting.Description", 15, h/2, Color(255,255,255,255), 0, TEXT_ALIGN_CENTER )
+				draw.SimpleText( "No resources, buy some from the hardware store!", "XeninUI.Crafting.Description", 15, h/2, Color(255,255,255,255), 0, TEXT_ALIGN_CENTER )
 			end
 		end
 
