@@ -79,6 +79,37 @@ if( SERVER ) then
         file.Write("bcrafting_resources/".. string.lower(game.GetMap()) ..".txt", util.TableToJSON( bCrafting_Resources ), "DATA")
         BCRAFTING.Notify( ply, "Position for resource set!" )
     end )
+
+    function BCRAFTING.SpawnItem( bench, class )
+        local weapon = ents.Create("spawned_weapon")
+
+        local weaponAng = bench:GetAngles()
+        local weaponPos = bench:GetAngles():Up() * 40
+
+        local defaultClip, clipSize
+        local wepTable = weapons.Get(class)
+
+        if not wepTable then
+            weapon:Remove()
+            return
+        end
+
+        if wepTable.Primary then
+            defaultClip = wepTable.Primary.DefaultClip
+            clipSize = wepTable.Primary.ClipSize
+        end
+
+        local model = wepTable.WorldModel
+
+        weapon:SetWeaponClass(class)
+        weapon:SetModel(model)
+        weapon.ammoadd = defaultClip
+        weapon.clip1 = clipSize
+        weapon:SetPos(bench:GetPos() + weaponPos)
+        weapon:SetAngles(weaponAng)
+        weapon.nodupe = true
+        weapon:Spawn()
+    end
 elseif( CLIENT ) then
     net.Receive( "bCrafting_Net_Notify", function()
         local Message = net.ReadString()

@@ -65,20 +65,16 @@ net.Receive( "bCrafting_Net_CraftItem", function( len, ply )
 	end
 
 	if( HasItems ) then
+		for k, v in pairs( Item.Resource ) do
+			Bench.Resources[k] = math.max( (Bench.Resources[k] or 0)-v, 0 )
+		end
+
 		if( Item.onCraft ) then
 			Item.onCraft( ply )
 		end
 
 		if( Item.WeaponClass ) then
-			local weapon = ents.Create( Item.WeaponClass )
-			if not IsValid( weapon ) then return end
-			weapon:SetPos( Bench:GetPos() + Vector( 0, 0, 50 ) )
-			weapon:Spawn()
-		end
-
-		-- Don't take items if failed to create weapon
-		for k, v in pairs( Item.Resource ) do
-			Bench.Resources[k] = math.max( (Bench.Resources[k] or 0)-v, 0 )
+			BCRAFTING.SpawnItem( Bench, Item.WeaponClass )
 		end
 
 		BCRAFTING.Notify( ply, "You have crafted the item '" .. Item.Name .. "'. It has been dropped on the workbench." )
