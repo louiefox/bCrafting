@@ -84,7 +84,7 @@ if( SERVER ) then
         local weapon = ents.Create("spawned_weapon")
 
         local weaponAng = bench:GetAngles()
-        local weaponPos = bench:GetAngles():Up() * 40
+        local weaponPos = bench:GetAngles():Up() * 60
 
         local defaultClip, clipSize
         local wepTable = weapons.Get(class)
