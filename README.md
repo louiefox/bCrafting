@@ -7,7 +7,7 @@
 ## Info
 
 A DarkRP crafting system that allows players to go around the map and collect resources in order to craft items!
-Works with any gamemode!
+Works with any gamemode! Now with [Xenin Inventory](https://www.gmodstore.com/market/view/xenin-inventory) support for resources!
 
 Want to support me? You can buy a more advanced crafting script here: [Brick's Crafting](https://www.gmodstore.com/market/view/brick-s-crafting-quests-mining-inventory)
 
